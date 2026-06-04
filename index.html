@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rachel Nova Sari — UI Designer & Web Developer</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,700&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fraunces', 'serif'],
+            body: ['Outfit', 'sans-serif'],
+            mono: ['DM Mono', 'monospace'],
+          },
+          colors: {
+            cream: '#F5F0E8',
+            ink: '#1A1612',
+            rust: '#C4622D',
+            sage: '#7A9E7E',
+            mist: '#B8C5C9',
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.7s ease forwards',
+            'fade-in': 'fadeIn 0.5s ease forwards',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeUp: {
+              '0%': { opacity: 0, transform: 'translateY(30px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+            fadeIn: {
+              '0%': { opacity: 0 },
+              '100%': { opacity: 1 },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-12px)' },
+            },
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #F5F0E8;
+      color: #1A1612;
+      font-family: 'Outfit', sans-serif;
+      overflow-x: hidden;
+    }
+    html { scroll-behavior: smooth; }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.5;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #F5F0E8; }
+    ::-webkit-scrollbar-thumb { background: #C4622D; border-radius: 3px; }
+
+    .hover-underline { position: relative; }
+    .hover-underline::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 1.5px;
+      background: #C4622D;
+      transition: width 0.3s ease;
+    }
+    .hover-underline:hover::after { width: 100%; }
+
+    .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+    .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+    .stagger-3 { animation-delay: 0.35s; opacity: 0; }
+    .stagger-4 { animation-delay: 0.5s; opacity: 0; }
+    .stagger-5 { animation-delay: 0.65s; opacity: 0; }
+
+    .project-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .project-card:hover { transform: translateY(-6px); box-shadow: 8px 8px 0px #C4622D; }
+
+    .skill-pill { transition: background 0.2s ease, color 0.2s ease; cursor: default; }
+    .skill-pill:hover { background: #C4622D; color: #F5F0E8; }
+
+    .deco-ring {
+      border: 1.5px solid rgba(196,98,45,0.25);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const NAV_LINKS = ['Beranda', 'Tentang', 'Keahlian', 'Proyek', 'Kontak'];
+
+    const SKILLS = [
+      { cat: 'Design', items: ['Figma', 'Canva', 'Adobe XD', 'UI/UX', 'Photoshop'] },
+      { cat: 'Frontend', items: ['HTML/CSS', 'JavaScript', 'React', 'Tailwind', 'Bootstrap'] },
+      { cat: 'Kuliah', items: ['Python', 'Java', 'MySQL', 'Laravel', 'Git'] },
+      { cat: 'Lainnya', items: ['Bikin Konten', 'Copywriting', 'Presentasi', 'Deadline™'] },
+    ];
+
+    const PROJECTS = [
+      {
+        id: 1,
+        title: 'Visual Identity BEM FT',
+        desc: 'Mendesain identitas visual dan template konten media sosial untuk kegiatan BEM Fakultas Teknik selama periode kepengurusan.',
+        tech: ['Figma', 'Canva', 'Photoshop'],
+        year: '2024',
+        color: '#C4622D',
+        emoji: '🎨',
+      },
+      {
+        id: 2,
+        title: 'Sistem Informasi Akademik',
+        desc: 'Tugas besar mata kuliah — web app untuk manajemen data mahasiswa dan nilai menggunakan Laravel dan MySQL.',
+        tech: ['Laravel', 'MySQL', 'Bootstrap'],
+        year: '2024',
+        color: '#7A9E7E',
+        emoji: '🌐',
+      },
+      {
+        id: 3,
+        title: 'UI Design — App Jadwal Kuliah',
+        desc: 'Desain UI/UX aplikasi mobile untuk manajemen jadwal kuliah dan pengingat tugas, dibuat dengan Figma.',
+        tech: ['Figma', 'UI/UX', 'Prototyping'],
+        year: '2024',
+        color: '#B8C5C9',
+        emoji: '📱',
+      },
+      {
+        id: 4,
+        title: 'Website UMKM Lokal',
+        desc: 'Landing page untuk UMKM produk lokal sebagai project praktikum — responsive dan didesain langsung dari Figma ke kode.',
+        tech: ['HTML/CSS', 'JavaScript', 'Figma'],
+        year: '2023',
+        color: '#1A1612',
+        emoji: '🛒',
+      },
+    ];
+
+    const EXPERIENCES = [
+      { year: '2024 — sekarang', role: 'Sek. Dinas Media Kreasi', place: 'BEM Fakultas Teknik', desc: 'Mengelola konten visual, desain poster, dan identitas kreatif kegiatan fakultas.' },
+      { year: '2023 — sekarang', role: 'Mahasiswi Aktif', place: 'Teknologi Informasi — Semester 4', desc: 'Belajar web development, pemrograman, dan sistem informasi sambil ngerjain tugas tiap hari.' },
+      { year: 'Keseharian', role: 'Tugas + Desain, repeat', place: 'Tiap hari tanpa libur', desc: 'Pagi kuliah, siang ngerjain tugas, malem desain — begitu terus sampai deadline selesai (atau nggak selesai).' },
+    ];
+
+    const DAILY_BADGES = ['☕ ngopi dulu', '💻 ngoding', '🎨 desain', '📋 rapat BEM', '😭 deadline', '🔁 ulangi'];
+
+    /* ── Navbar ── */
+    function Navbar() {
+      const [open, setOpen] = useState(false);
+      const [scrolled, setScrolled] = useState(false);
+      const [active, setActive] = useState('Beranda');
+
+      useEffect(() => {
+        const fn = () => setScrolled(window.scrollY > 40);
+        window.addEventListener('scroll', fn);
+        return () => window.removeEventListener('scroll', fn);
+      }, []);
+
+      const scrollTo = (section) => {
+        const id = section.toLowerCase();
+        const el = document.getElementById(id === 'beranda' ? 'hero' : id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        setActive(section);
+        setOpen(false);
+      };
+
+      return (
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-cream/90 backdrop-blur-md border-b border-ink/8 shadow-sm' : ''}`}>
+          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <button onClick={() => scrollTo('Beranda')} className="font-display font-bold text-xl text-ink hover:text-rust transition-colors">
+              RN<span className="text-rust">.</span>
+            </button>
+            <ul className="hidden md:flex gap-8 font-mono text-sm font-medium">
+              {NAV_LINKS.map((link, i) => (
+                <li key={i}>
+                  <button onClick={() => scrollTo(link)} className={`hover-underline transition-colors ${active === link ? 'text-rust' : 'text-ink/70 hover:text-ink'}`}>
+                    {link}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <a href="#kontak" className="hidden md:block px-4 py-2 border border-rust text-rust font-mono text-sm hover:bg-rust hover:text-cream transition-all duration-200">
+              Hire Me
+            </a>
+            <button className="md:hidden flex flex-col gap-1.5 p-1" onClick={() => setOpen(!open)}>
+              <span className={`block h-0.5 bg-ink transition-all duration-300 ${open ? 'w-6 rotate-45 translate-y-2' : 'w-6'}`}></span>
+              <span className={`block h-0.5 bg-ink transition-all duration-300 ${open ? 'opacity-0 w-0' : 'w-4'}`}></span>
+              <span className={`block h-0.5 bg-ink transition-all duration-300 ${open ? 'w-6 -rotate-45 -translate-y-2' : 'w-5'}`}></span>
+            </button>
+          </div>
+          {open && (
+            <div className="md:hidden bg-cream border-t border-ink/10 px-6 py-6 flex flex-col gap-4">
+              {NAV_LINKS.map((link, i) => (
+                <button key={i} onClick={() => scrollTo(link)} className={`text-left font-body text-lg transition-colors ${active === link ? 'text-rust' : 'text-ink/70'}`}>
+                  {link}
+                </button>
+              ))}
+              <a href="#kontak" className="mt-2 px-4 py-2 border border-rust text-rust text-center font-mono text-sm hover:bg-rust hover:text-cream transition-all">
+                Hire Me
+              </a>
+            </div>
+          )}
+        </nav>
+      );
+    }
+
+    /* ── Hero ── */
+    function Hero() {
+      return (
+        <section id="hero" className="min-h-screen flex items-center relative overflow-hidden pt-20">
+          <div className="absolute top-32 right-16 w-48 h-48 deco-ring opacity-30 hidden lg:block"></div>
+          <div className="absolute top-48 right-32 w-24 h-24 deco-ring opacity-20 hidden lg:block" style={{animationDelay:'2s'}}></div>
+          <div className="absolute bottom-32 left-8 w-32 h-32 deco-ring opacity-20 hidden lg:block" style={{animationDelay:'4s'}}></div>
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 font-display font-black text-[12vw] text-ink/4 select-none pointer-events-none leading-none pr-4 hidden md:block">
+            TI
+          </div>
+          <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center w-full">
+            <div>
+              <p className="animate-fade-up stagger-1 font-mono text-sm text-rust tracking-widest uppercase mb-4">
+                ✦ UI Designer & Web Developer
+              </p>
+              <h1 className="animate-fade-up stagger-2 font-display font-black text-5xl md:text-7xl leading-none text-ink mb-6">
+                Rachel<br />
+                Nova <em className="text-rust not-italic italic">Sari</em>
+              </h1>
+              <p className="animate-fade-up stagger-3 font-body text-ink/60 text-lg leading-relaxed mb-8 max-w-md">
+                Mahasiswi Teknologi Informasi semester 4 yang harinya dipenuhi tugas kuliah, desain, dan ngurusin konten kreatif di BEM Fakultas Teknik.
+              </p>
+              <div className="animate-fade-up stagger-4 flex flex-wrap gap-4">
+                <button
+                  onClick={() => document.getElementById('proyek').scrollIntoView({ behavior: 'smooth' })}
+                  className="px-6 py-3 bg-ink text-cream font-mono text-sm hover:bg-rust transition-colors duration-200"
+                >
+                  Lihat Proyek →
+                </button>
+                <a href="#kontak" className="px-6 py-3 border border-ink/30 text-ink font-mono text-sm hover:border-rust hover:text-rust transition-colors duration-200">
+                  Kontak Saya
+                </a>
+              </div>
+              <div className="animate-fade-up stagger-5 flex gap-8 mt-12 pt-8 border-t border-ink/10">
+                {[['Smt 4', 'TI'], ['BEM', 'FT — Medkres'], ['∞', 'Deadline']].map(([num, label]) => (
+                  <div key={label}>
+                    <div className="font-display font-bold text-3xl text-ink">{num}</div>
+                    <div className="font-mono text-xs text-ink/50 tracking-wide uppercase">{label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="hidden lg:flex justify-end items-center animate-fade-in stagger-3">
+              <div className="relative">
+                <div className="w-72 h-80 bg-ink rounded-2xl flex flex-col justify-between p-8 shadow-2xl" style={{transform: 'rotate(-2deg)'}}>
+                  <div className="flex justify-between items-start">
+                    <div className="w-10 h-10 rounded-full bg-rust flex items-center justify-center font-display font-bold text-cream text-lg">R</div>
+                    <span className="font-mono text-xs text-cream/40">@rachelnova</span>
+                  </div>
+                  <div>
+                    <div className="font-mono text-xs text-sage mb-2 tracking-wider">CURRENTLY DOING</div>
+                    <div className="font-display text-cream text-xl font-bold leading-tight mb-4">Tugas kuliah + desain poster BEM ✦</div>
+                    <div className="flex flex-wrap gap-2">
+                      {['Figma', 'React', 'Canva'].map(t => (
+                        <span key={t} className="px-2 py-1 bg-cream/10 text-cream/70 font-mono text-xs">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -z-10 w-72 h-80 bg-rust rounded-2xl top-3 left-3" style={{transform:'rotate(-2deg)'}}></div>
+              </div>
+            </div>
+          </div>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-float">
+            <div className="font-mono text-xs text-ink/30 tracking-widest uppercase">Scroll</div>
+            <div className="w-px h-8 bg-gradient-to-b from-ink/30 to-transparent"></div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── About ── */
+    function About() {
+      return (
+        <section id="tentang" className="py-28 px-6 bg-ink text-cream relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-rust to-transparent opacity-30"></div>
+          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-rust to-transparent opacity-30"></div>
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-20 items-start">
+            <div>
+              <p className="font-mono text-xs text-rust tracking-widest uppercase mb-4">✦ Tentang Saya</p>
+              <h2 className="font-display font-bold text-5xl md:text-6xl text-cream leading-tight mb-8">
+                Desain &<br /><em className="text-sage">kode</em> itu satu.
+              </h2>
+              <p className="font-body text-cream/60 leading-relaxed mb-4">
+                Hai! Saya Rachel Nova Sari, mahasiswi Teknologi Informasi semester 4 di Fakultas Teknik. Keseharian saya penuh antara ngerjain tugas kuliah, bikin desain, dan ngurusin kerjaan organisasi.
+              </p>
+              <p className="font-body text-cream/60 leading-relaxed mb-4">
+                Di BEM Fakultas Teknik, saya aktif sebagai Sekretaris Dinas Media Kreasi — jadi yang bikin konten, desain poster, dan ngatur visual kegiatan fakultas. Seneng banget kalau bisa gabungin kreatifitas sama teknologi.
+              </p>
+              <p className="font-body text-cream/60 leading-relaxed mb-8">
+                Kalau lagi nggak ada deadline, biasanya malah bikin desain iseng atau eksplor tools baru sambil dengerin playlist lofi.
+              </p>
+              <div className="flex gap-4">
+                <button className="w-10 h-10 border border-cream/20 flex items-center justify-center text-cream/60 hover:border-rust hover:text-rust transition-all text-sm font-mono">GH</button>
+                <button className="w-10 h-10 border border-cream/20 flex items-center justify-center text-cream/60 hover:border-rust hover:text-rust transition-all text-sm font-mono">LI</button>
+                <button className="w-10 h-10 border border-cream/20 flex items-center justify-center text-cream/60 hover:border-rust hover:text-rust transition-all text-sm font-mono">IG</button>
+              </div>
+            </div>
+            <div>
+              <p className="font-mono text-xs text-mist/50 tracking-widest uppercase mb-6">Kegiatan & Organisasi</p>
+              <div className="space-y-8">
+                {EXPERIENCES.map((exp, i) => (
+                  <div key={i} className="flex gap-6 group">
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 rounded-full bg-rust mt-1.5 group-hover:scale-150 transition-transform"></div>
+                      {i < EXPERIENCES.length - 1 && <div className="w-px flex-1 bg-cream/10 mt-2"></div>}
+                    </div>
+                    <div className="pb-8">
+                      <div className="font-mono text-xs text-rust mb-1">{exp.year}</div>
+                      <div className="font-body font-semibold text-cream mb-0.5">{exp.role}</div>
+                      <div className="font-mono text-xs text-cream/40 mb-2">{exp.place}</div>
+                      <p className="font-body text-sm text-cream/50 leading-relaxed">{exp.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="font-mono text-xs text-mist/50 tracking-widest uppercase mb-4 mt-4">Rutinitas Harian</p>
+              <div className="flex flex-wrap gap-2">
+                {DAILY_BADGES.map((b, i) => (
+                  <span key={i} className="px-3 py-1.5 border border-cream/12 text-cream/50 font-mono text-xs">{b}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── Skills ── */
+    function Skills() {
+      return (
+        <section id="keahlian" className="py-28 px-6 relative">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
+              <div>
+                <p className="font-mono text-xs text-rust tracking-widest uppercase mb-3">✦ Keahlian</p>
+                <h2 className="font-display font-bold text-5xl text-ink leading-tight">Skill <em className="italic">Stack</em></h2>
+              </div>
+              <p className="font-body text-ink/50 max-w-xs leading-relaxed">
+                Yang dipelajari di kuliah, dipakai di tugas, dan dieksplor sendiri di waktu luang.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {SKILLS.map((group, gi) => (
+                <div key={gi} className="bg-cream border border-ink/8 p-6 hover:border-rust/40 transition-colors duration-300 group">
+                  <div className="font-mono text-xs text-rust tracking-wider uppercase mb-4 group-hover:text-ink transition-colors">
+                    {group.cat}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((skill, si) => (
+                      <span key={si} className="skill-pill px-3 py-1.5 border border-ink/15 text-ink/70 font-mono text-xs">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-16 h-1 bg-gradient-to-r from-rust via-sage to-mist rounded-full opacity-40"></div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── Projects ── */
+    function Projects() {
+      return (
+        <section id="proyek" className="py-28 px-6 bg-ink/4">
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-16">
+              <p className="font-mono text-xs text-rust tracking-widest uppercase mb-3">✦ Portofolio</p>
+              <h2 className="font-display font-bold text-5xl text-ink leading-tight">Proyek <em className="italic">Pilihan</em></h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {PROJECTS.map((project) => (
+                <div key={project.id} className="project-card border border-ink/10 overflow-hidden group cursor-pointer">
+                  <div className="h-1.5" style={{ background: project.color }}></div>
+                  <div className="p-8">
+                    <div className="flex items-start justify-between mb-4">
+                      <span className="text-4xl">{project.emoji}</span>
+                      <span className="font-mono text-xs text-ink/30">{project.year}</span>
+                    </div>
+                    <h3 className="font-display font-bold text-2xl text-ink mb-3 group-hover:text-rust transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="font-body text-sm text-ink/55 leading-relaxed mb-6">{project.desc}</p>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {project.tech.map((t, i) => (
+                        <span key={i} className="px-2.5 py-1 bg-ink/5 text-ink/60 font-mono text-xs">{t}</span>
+                      ))}
+                    </div>
+                    <div className="flex gap-4">
+                      <button className="font-mono text-xs text-rust hover-underline transition-colors">Lihat Hasil →</button>
+                      <button className="font-mono text-xs text-ink/40 hover:text-ink hover-underline transition-colors">Source Code</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── Contact ── */
+    function Contact() {
+      const [form, setForm] = useState({ name: '', email: '', message: '' });
+      const [sent, setSent] = useState(false);
+
+      const handleSubmit = () => {
+        if (form.name && form.email && form.message) {
+          setSent(true);
+          setForm({ name: '', email: '', message: '' });
+          setTimeout(() => setSent(false), 4000);
+        }
+      };
+
+      return (
+        <section id="kontak" className="py-28 px-6 bg-ink text-cream relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-rust to-transparent opacity-30"></div>
+          <div className="absolute left-0 bottom-0 font-display font-black text-[15vw] text-cream/3 select-none pointer-events-none leading-none">
+            KONTAK
+          </div>
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-20 items-start relative">
+            <div>
+              <p className="font-mono text-xs text-rust tracking-widest uppercase mb-4">✦ Kontak</p>
+              <h2 className="font-display font-bold text-5xl text-cream leading-tight mb-6">
+                Yuk <em className="text-sage">ngobrol!</em>
+              </h2>
+              <p className="font-body text-cream/50 leading-relaxed mb-8 max-w-sm">
+                Mau kolaborasi project, butuh desain, atau sekadar ngobrol soal UI/UX dan web dev — gas aja!
+              </p>
+              <div className="space-y-4">
+                {[
+                  { label: 'Email', value: 'rachelnova@mhs.ft.ac.id' },
+                  { label: 'Kampus', value: 'Teknologi Informasi — Smt 4' },
+                  { label: 'Org', value: 'BEM FT — Sek. Dinas Media Kreasi' },
+                  { label: 'Status', value: '🟢 Open for collab & freelance' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex gap-4 items-start">
+                    <span className="font-mono text-xs text-rust/70 w-16 pt-0.5 uppercase tracking-wide">{label}</span>
+                    <span className="font-body text-cream/60 text-sm">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              {sent ? (
+                <div className="border border-sage/30 bg-sage/10 p-8 text-center">
+                  <div className="text-4xl mb-4">✓</div>
+                  <p className="font-display text-2xl text-cream mb-2">Makasih udah reach out!</p>
+                  <p className="font-body text-cream/50 text-sm">Nanti Rachel balas setelah deadline selesai ya hehe.</p>
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  <div>
+                    <label className="block font-mono text-xs text-cream/40 tracking-wider uppercase mb-2">Nama</label>
+                    <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Nama kamu"
+                      className="w-full bg-transparent border border-cream/15 px-4 py-3 text-cream placeholder:text-cream/25 font-body text-sm focus:outline-none focus:border-rust transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-xs text-cream/40 tracking-wider uppercase mb-2">Email</label>
+                    <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="email@kamu.com"
+                      className="w-full bg-transparent border border-cream/15 px-4 py-3 text-cream placeholder:text-cream/25 font-body text-sm focus:outline-none focus:border-rust transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-xs text-cream/40 tracking-wider uppercase mb-2">Pesan</label>
+                    <textarea value={form.message} onChange={e => setForm({...form, message: e.target.value})} placeholder="Mau ngobrol soal apa nih?" rows={5}
+                      className="w-full bg-transparent border border-cream/15 px-4 py-3 text-cream placeholder:text-cream/25 font-body text-sm focus:outline-none focus:border-rust transition-colors resize-none" />
+                  </div>
+                  <button onClick={handleSubmit} className="w-full py-4 bg-rust text-cream font-mono text-sm tracking-wide hover:bg-cream hover:text-ink transition-colors duration-200">
+                    Kirim Pesan →
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── Footer ── */
+    function Footer() {
+      return (
+        <footer className="bg-ink border-t border-cream/5 px-6 py-8">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="font-display font-bold text-lg text-cream/80">RN<span className="text-rust">.</span></div>
+            <p className="font-mono text-xs text-cream/30">© 2024 Rachel Nova Sari · TI Semester 4 · BEM Fakultas Teknik</p>
+            <div className="flex gap-4">
+              {['GitHub', 'LinkedIn', 'Instagram'].map(s => (
+                <a key={s} href="#" className="font-mono text-xs text-cream/30 hover:text-rust transition-colors">{s}</a>
+              ))}
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    /* ── App ── */
+    function App() {
+      return (
+        <div>
+          <Navbar />
+          <Hero />
+          <About />
+          <Skills />
+          <Projects />
+          <Contact />
+          <Footer />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
